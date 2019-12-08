@@ -29,3 +29,10 @@ void list_free(list_t *ls, void (*free_fn)(const void *)) {
         ls = next;
     }
 }
+
+void str_lowercase(char *str) {
+    while (*str) {
+        *str = tolower(*str);
+        ++str;
+    }
+}

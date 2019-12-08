@@ -1,4 +1,5 @@
 #pragma once
+#include <ctype.h>
 
 // List head is always value-empty and never null
 
@@ -13,3 +14,5 @@ list_t *list_empty();
 // Otherwise, will additionally call free_fn on .value field of all
 // elements of ls.
 void list_free(list_t *ls,  void (*free_fn)(const void *));
+
+void str_lowercase(char *str);
