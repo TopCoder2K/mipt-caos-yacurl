@@ -6,7 +6,8 @@
 
 void http_header_t_free(const void *header_ptr) {
     http_header_t *hdr = (http_header_t *)header_ptr;
-    free(hdr->key);
+    if (hdr->key.k_str != NULL)
+        free(hdr->key.k_str);
     free(hdr->value);
     free(hdr);
 }
@@ -84,7 +85,9 @@ int http_parse_headers(const char *raw, size_t length, list_t **dest) {
 #endif // DEBUG
         
         http_header_t *s_header = malloc(sizeof(http_header_t));
-        s_header->key = strndup(cur_line, key_end - cur_line);
+        s_header->key.k_str = strndup(cur_line, key_end - cur_line);
+        str_lowercase(s_header->key.k_str);
+        s_header->key.k_code = http_header_code(s_header->key.k_str);
         s_header->value = strndup(value, value_end - value);
         
         list_t *ls_next = list_empty();
