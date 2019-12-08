@@ -2,6 +2,8 @@
 #include "common.h"
 #include "http_header_list.h"
 
+// k_str == NULL iff k_code != HTTP_HDR_OTHER
+// else k_str points to header title
 typedef struct http_header_key {
     http_header_code_t k_code;
     char *k_str;
@@ -12,6 +14,7 @@ typedef struct http_header {
     char *value;
 } http_header_t;
 
+// will free() .value, .key.k_str (if HTTP_HDR_OTHER) and the argument itself
 void http_header_t_free(const void *header_ptr);
 
 // `raw' line format:
@@ -22,12 +25,13 @@ void http_header_t_free(const void *header_ptr);
 int http_parse_headers(const char *raw, size_t length, list_t **dest);
 
 typedef struct http_request {
-    const char *host;
+    char *host;
     int port;
-    http_header_t *headers;
-    const char *body;
+    list_t *headers;
+    char *body;
 } http_request_t;
 
 http_request_t *http_request_init();
+void http_request_free(http_request_t *request);
 
-void http_request_sethdr();
+void http_request_sethdr(http_request_t *request, http_header_t *header);
