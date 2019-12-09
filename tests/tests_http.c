@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../src/http.h"
+#include "../src/http_header.h"
+#include "../src/http_request.h"
 
 const char test_case_1[] =
     "Host: mipt.ru\n"
