@@ -1,5 +1,7 @@
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "common.h"
 
 list_t *list_empty() {
@@ -64,4 +66,10 @@ void str_lowercase(char *str) {
         *str = tolower(*str);
         ++str;
     }
+}
+
+char *str_dup_by_match(const char *str, regmatch_t *match) {
+    const char *begin = str + match->rm_so;
+    size_t len = match->rm_eo - match->rm_so;
+    return strndup(begin, len);
 }

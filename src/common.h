@@ -1,5 +1,6 @@
 #pragma once
 #include <ctype.h>
+#include <regex.h>
 
 // List head is always value-empty and never null
 
@@ -34,3 +35,7 @@ list_t *list_find_equal(
 );
 
 void str_lowercase(char *str);
+
+// return value:
+//   pointer to an allocated copy of substring of `str', limited by `match'
+char *str_dup_by_match(const char *str, regmatch_t *match);
