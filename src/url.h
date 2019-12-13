@@ -11,4 +11,4 @@ typedef struct url_info {
 // Otherwise, will return value received from regexec().
 //
 // `url_info' fields can be freed with free().
-int url_split(const char *url, url_info_t *url_info);
+char *url_split(const char *url, url_info_t *url_info);

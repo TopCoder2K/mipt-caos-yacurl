@@ -18,5 +18,6 @@ void http_request_sethdr(http_request_t *request, http_header_t *header);
 //   .method <- GET
 //   .version <- 1.1
 //   Host header and .path as specifed in url
-// 
-void http_request_seturl(http_request_t *request, const char *url);
+// Return value:
+//   zero iff no error
+int http_request_seturl(http_request_t *request, const char *url);
