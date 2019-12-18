@@ -1,4 +1,8 @@
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif // _GNU_SOURCE
+
+#include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -167,10 +171,9 @@ void http_header_set(list_t *headers, http_header_t *new_header) {
 
     if (is_found) {
         http_header_t *found_header = found_node->value;
-        if (strcmp(found_header->value, new_header->value)) {
-            free(found_header->value);
-            found_header->value = strdup(new_header->value);
-        }
+        free(found_header->value);
+        found_header->value = strdup(new_header->value);
+        http_header_t_free(new_header);
     }
     else {
         list_t *tail = found_node;
