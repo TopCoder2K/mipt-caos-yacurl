@@ -42,3 +42,5 @@ int http_header_key_isequal(
 //   number of headers
 // headers obtained can be freed by calls to http_header_t_free()
 int http_parse_headers(const char *raw, size_t length, list_t **dest);
+
+void http_header_set(list_t *headers, http_header_t *new_header);

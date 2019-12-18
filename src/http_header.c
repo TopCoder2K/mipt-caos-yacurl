@@ -152,3 +152,28 @@ int http_parse_headers(const char *raw, size_t length, list_t **dest) {
         return error;
     }
 }
+
+void http_header_set(list_t *headers, http_header_t *new_header) {
+    if (new_header->key.k_code == HTTP_HDR_OTHER)
+        str_lowercase(new_header->key.k_str);
+
+    int is_found;
+    list_t *found_node = list_find_equal(
+        headers,
+        &new_header->key,
+        http_header_key_isequal,
+        &is_found
+    );
+
+    if (is_found) {
+        http_header_t *found_header = found_node->value;
+        if (strcmp(found_header->value, new_header->value)) {
+            free(found_header->value);
+            found_header->value = strdup(new_header->value);
+        }
+    }
+    else {
+        list_t *tail = found_node;
+        list_append(tail, new_header);
+    }
+}
