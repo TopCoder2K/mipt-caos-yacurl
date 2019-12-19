@@ -8,7 +8,7 @@ set (SOURCE_FILES
         src/cli.c
         src/common.c
         src/http_header.c
-        src/http_methods.h
+        src/http_methods.c
         src/http_request.c
         src/url.c
 )
