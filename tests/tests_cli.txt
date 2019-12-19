@@ -1,2 +1,3 @@
 $ valgrind ./a.out -X PUT -H 'User-Agent:curl' -H 'User-Agent:webkit' ident.me
 $ valgrind ./a.out -iO -X PUT -H 'Accept-Encoding:      gzip' -H 'User-Agent: webkit' -d 0xFF ident.me
+$ valgrind ./a.out -H 'HTTP2-Options;' example.com

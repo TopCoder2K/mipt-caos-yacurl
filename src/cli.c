@@ -76,7 +76,7 @@ int cmdline_add_header(cmdline_t *cmdline, const char *keyval) {
         const char *pos_semicolon = strchr(keyval, ';');
         if (pos_semicolon != NULL) {
             key = strndup(keyval, pos_semicolon - keyval);
-            value = "";
+            value = strdup("");
         }
         else
             error = 1;
