@@ -1,7 +1,7 @@
-#include "stdio.h"
-#include "string.h"
-#include "stdlib.h"
-#include "net.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "../net.h"
 
 
 

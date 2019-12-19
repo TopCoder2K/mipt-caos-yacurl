@@ -17,7 +17,7 @@ typedef struct net_request {
     size_t send_buf_size;
     char *recv_buf;
     size_t recv_buf_size;
-    void (*on_data)(const net_request_t *, size_t);
+    void (*on_data)(const struct net_request *, size_t);
 } net_request_t;
 
 // Should set defaults as:
@@ -51,8 +51,8 @@ void net_request_free(net_request_t *net_req) {
 //   zero if no error ocurred, -1 otherwise.
 int net_send_receive(net_request_t *request) {
     // Bad moment?????????????????????????????????????????????????????????
-    char port_num[] = {0, 0, 0, 0, 0, 0};
-    itoa(request->port, port_num, 10);
+    char port_num[10];
+    sprintf(port_num, "%d", request->port);
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
