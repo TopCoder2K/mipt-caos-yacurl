@@ -34,13 +34,7 @@ int init_cmdline_t(cmdline_t *cmdline) {
 }
 
 int cmdline_set_method(cmdline_t *cmdline, const char *method) {
-    int error = 1;
-    
-    for (size_t i = 0; error && i < http_methods_supported_cnt; ++i) {
-        if (!strcmp(method, http_methods_supported[i]))
-            error = 0;
-    }
-    
+    int error = !http_methods_is_supported(method);
     if (!error) {
         free(cmdline->method);
         cmdline->method = strdup(method);
