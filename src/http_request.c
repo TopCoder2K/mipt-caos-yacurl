@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,8 +18,9 @@ http_request_t *http_request_init() {
 }
 
 void http_request_free(http_request_t *request) {
-    free(request->version);
+    free(request->method);
     free(request->path);
+    free(request->version);
     list_free(request->headers, http_header_t_free);
     // free(request->host);
     free(request->body);
@@ -43,7 +45,6 @@ int http_request_seturl(http_request_t *request, const char *url) {
         return 1;
     }
     
-    request->version = strdup("1.1");
     request->path = url_info.path;
     
     http_header_t *hdr_host = malloc(sizeof(http_header_t));
@@ -56,4 +57,123 @@ int http_request_seturl(http_request_t *request, const char *url) {
     free(url_info.form_data);
     free(url_info.proto);
     return 0;
+}
+
+// Return value:
+//   zero iff ok
+int http_request_validate_basic(http_request_t *request) {
+    int error = 0;
+    error |= request->method == NULL;
+    error |= request->path == NULL;
+    error |= request->version == NULL;
+    error |= request->body == NULL;
+    
+    http_header_key_t hdr_host_key = { .k_code = HTTP_HDR_HOST };
+    int is_found;
+    list_t *hdr_host_node = list_find_equal(
+        request->headers,
+        &hdr_host_key,
+        http_header_key_isequal,
+        &is_found
+    );
+    error |= !is_found;
+    if (!error) {
+        http_header_t *hdr_host = hdr_host_node->value;
+        error |= strlen(hdr_host->value) == 0;
+    }
+    
+#ifdef DEBUG
+    fprintf(
+        stderr, "[http_request_validate_basic] error=%d\n",
+        error
+    );
+#endif // DEBUG
+    return error;
+}
+
+// Return value:
+//   number of bytes enough to store the request string
+size_t http_request_required_size(http_request_t *request) {
+    size_t required_size = 1; // 0-terminator
+    required_size += strlen(request->method) + 1;
+    required_size += strlen(request->path) + 1;
+    required_size += strlen(request->version) + 1;
+    
+    list_t *cnode = request->headers->next;
+    while (cnode != NULL) {
+        http_header_t *cheader = cnode->value;
+        const char *key;
+#ifdef DEBUG
+        fprintf(
+            stderr, "[http_request_required_size] header loop code=%d\n",
+            cheader->key.k_code
+        );
+#endif // DEBUG
+        if (cheader->key.k_code == HTTP_HDR_OTHER)
+            key = cheader->key.k_str;
+        else
+            key = http_header_str(cheader->key.k_code);
+        required_size += strlen(key) + 2 + strlen(cheader->value) + 1;
+        cnode = cnode->next;
+    }
+    
+    required_size += 1 + strlen(request->body);
+    
+#ifdef DEBUG
+        fprintf(
+            stderr, "[http_request_required_size] return=%d\n",
+            required_size
+        );
+#endif // DEBUG
+    return required_size;
+}
+
+char *http_request_write(http_request_t *request) {
+    char *request_buffer = NULL;
+    if (http_request_validate_basic(request) == 0) {
+        size_t required_size = http_request_required_size(request);
+        request_buffer = malloc(required_size);
+        memset(request_buffer, 0, required_size);
+        
+        request_buffer = strcat(request_buffer, request->method);
+        request_buffer = strcat(request_buffer, " ");
+        request_buffer = strcat(request_buffer, request->path);
+        request_buffer = strcat(request_buffer, " ");
+        request_buffer = strcat(request_buffer, request->version);
+        request_buffer = strcat(request_buffer, "\n");
+        
+        list_t *cnode = request->headers->next;
+        while (cnode != NULL) {
+            http_header_t *cheader = cnode->value;
+            const char *key;
+            if (cheader->key.k_code == HTTP_HDR_OTHER)
+                key = cheader->key.k_str;
+            else
+                key = http_header_str(cheader->key.k_code);
+#ifdef DEBUG
+            fprintf(
+                stderr, "[http_request_write] header loop key=``%s`` value=``%s``\n",
+                key, cheader->value
+            );
+#endif // DEBUG
+            request_buffer = strcat(request_buffer, key);
+            request_buffer = strcat(request_buffer, ": ");
+            request_buffer = strcat(request_buffer, cheader->value);
+            request_buffer = strcat(request_buffer, "\n");
+            cnode = cnode->next;
+        };
+        
+        request_buffer = strcat(request_buffer, "\n");
+        request_buffer = strcat(request_buffer, request->body);
+        
+#ifdef DEBUG
+        fprintf(
+            stderr, "[http_request_write] written len=%d request=``%s``\n",
+            strlen(request_buffer), request_buffer
+        );
+#endif // DEBUG
+        assert(strlen(request_buffer) + 1 == required_size);
+    }
+    
+    return request_buffer;
 }
