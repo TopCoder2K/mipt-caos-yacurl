@@ -50,70 +50,66 @@ void net_request_free(net_request_t *net_req) {
 // Return value:
 //   zero if no error ocurred, -1 otherwise.
 int net_send_receive(net_request_t *request) {
-    int sd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sd == -1) {
-        fprintf(stderr, "Socket creation failed");
-        return -1;
-    }
-
+    // Bad moment?????????????????????????????????????????????????????????
     char port_num[] = {0, 0, 0, 0, 0, 0};
     itoa(request->port, port_num, 10);
+
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_UNSPEC;        // It's not necessary: IPv4 or IPv6.
     hints.ai_socktype = SOCK_STREAM;    // TCP stream-sockets.
-    hints.ai_flags = AI_PASSIVE;        // Fill IP-address.
-    struct addrinfo *res = NULL;
+    struct addrinfo *addrinfo_list = NULL;
 
     int status = 0;
-    if ((status = getaddrinfo(request->hostname, port_num, &hints, &servinfo)) != 0) {
+    if ((status = getaddrinfo(request->hostname, port_num, &hints, &addrinfo_list)) != 0) {
         fprintf(stderr, "getaddrinfo error: %sn", gai_strerror(status));
         return -1;
     }
 
-
-
-    /*in_addr_t ip4_addr = inet_addr(request->);
-    in_port_t port = htons(request->port);
-    while (res != NULL) {
-        
-    }
-
-    struct sockaddr_in full_addr;
-    full_addr.sin_family = AF_INET;
-    full_addr.sin_port = port;
-    full_addr.sin_addr.s_addr = ip4_addr;*/
-
-    if (connect(sd, (const struct sockaddr*) &full_addr, sizeof(full_addr)) != 0) {
-        fprintf(stderr, "Connection failed");
-        shutdown(sd, SHUT_RDWR);
-        close(sd);
+    // Create socket.
+    int sock_fd = socket(addrinfo_list->ai_family, addrinfo_list->ai_socktype, addrinfo_list->ai_protocol);
+    if (sock_fd == -1) {
+        fprintf(stderr, "Socket creation failed");
         return -1;
     }
+
+    if (connect(sock_fd, addrinfo_list->ai_addr, addrinfo_list->ai_addrlen) != 0) {
+        fprintf(stderr, "Connection failed");
+        close(sock_fd);
+        return -1;
+    }
+
+
 
     // Send the request.
-    if (write(sd, request->send_buf, request->send_buf_size) < request->send_buf_size) {
-        fprintf(stderr, "The request wasn't completely transmitted");
-        close(sd);
+    long long bytes_sent = 0;
+    size_t remaining_bytes = request->send_buf_size;
+    while ((bytes_sent = send(sock_fd, request->send_buf + request->send_buf_size - remaining_bytes, remaining_bytes, 0)) > 0) {
+        remaining_bytes -= bytes_sent;
+    }
+
+    if (remaining_bytes > 0) {
+        if (bytes_sent < 0) {
+            fprintf(stderr, "Error occured during the transmition (e. g. server closed the connection)");
+        } else {
+            fprintf(stderr, "The transmition is strangely interrupted");
+        }
+        close(sock_fd);
         return -1;
     }
 
-    long long was_read = 0;
-    size_t remained_size = request->recv_buf_size;
-    while ((was_read = read(sd, request->recv_buf + request->recv_buf_size - remained_size, remained_size)) > 0) {
-        if (was_read == -1) {
-            fprintf(stderr, "Read failed");
-            shutdown(sd, SHUT_RDWR);
-            close(sd);
-            return -1;
-        }
 
-        remained_size -= was_read;
-        if (remained_size == 0) {
+    // Read the response.
+    long long was_read = 0;
+    remaining_bytes = request->recv_buf_size;
+    while ((was_read = recv(sock_fd, request->recv_buf + request->recv_buf_size - remaining_bytes, remaining_bytes, 0)) > 0) {
+        remaining_bytes -= was_read;
+
+        if (remaining_bytes == 0) {
             if (request->on_data == NULL) {
                 fprintf(stderr, "recv_buf is full, but there is no function to free it");
-                shutdown(sd, SHUT_RDWR);
-                close(sd);
+                shutdown(sock_fd, SHUT_RDWR);
+                close(sock_fd);
                 return -1;
             } else {
                 request->on_data(request, request->recv_buf_size);
@@ -124,7 +120,16 @@ int net_send_receive(net_request_t *request) {
             fflush(stdout);
         #endif // DEBUG
     }
-    close(sd);
+
+    if (was_read == -1) {
+        fprintf(stderr, "recv failed");
+        shutdown(sock_fd, SHUT_RDWR);
+        close(sock_fd);
+        return -1;
+    }
+
+    close(sock_fd);
+    free(addrinfo_list);
 
     return 0;
 }
