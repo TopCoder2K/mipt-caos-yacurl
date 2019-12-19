@@ -82,6 +82,11 @@ int net_send_receive(net_request_t *request) {
 
 
     // Send the request.
+    #ifdef DEBUG
+        printf("Start sending the request.\n");
+        fflush(stdout);
+    #endif // DEBUG
+
     long long bytes_sent = 0;
     size_t remaining_bytes = request->send_buf_size;
     while ((bytes_sent = send(sock_fd, request->send_buf + request->send_buf_size - remaining_bytes, remaining_bytes, 0)) > 0) {
@@ -100,6 +105,11 @@ int net_send_receive(net_request_t *request) {
 
 
     // Read the response.
+    #ifdef DEBUG
+        printf("Start reading the response.\n");
+        fflush(stdout);
+    #endif // DEBUG
+
     long long was_read = 0;
     remaining_bytes = request->recv_buf_size;
     while ((was_read = recv(sock_fd, request->recv_buf + request->recv_buf_size - remaining_bytes, remaining_bytes, 0)) > 0) {
@@ -127,6 +137,11 @@ int net_send_receive(net_request_t *request) {
         close(sock_fd);
         return -1;
     }
+
+    #ifdef DEBUG
+        printf("Finished.\n");
+        fflush(stdout);
+    #endif // DEBUG
 
     close(sock_fd);
     free(addrinfo_list);

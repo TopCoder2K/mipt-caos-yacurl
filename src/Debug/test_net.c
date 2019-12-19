@@ -4,6 +4,8 @@
 #include "../net.h"
 
 
+#define DEBUG
+
 
 const unsigned int BUF_SIZE = 4096;
 
@@ -17,7 +19,7 @@ const unsigned int BUF_SIZE = 4096;
 
 int main(int argc, char **argv) {
     char hostname[] = "localhost";
-    int port = 8000;
+    int port = atoi(argv[1]);
     char *to_send = calloc(BUF_SIZE, sizeof(char));
     size_t send_buf_size = BUF_SIZE;
     char *to_recv = calloc(BUF_SIZE, sizeof(char));
@@ -34,11 +36,13 @@ int main(int argc, char **argv) {
     net_req_ptr->recv_buf_size = recv_buf_size;
     net_req_ptr->on_data = NULL;
 
+    printf("Request was created.\n");
+
     int status = net_send_receive(net_req_ptr);
     if (status == -1) {
         return 1;
     }
-    printf("GOT:\n%s\n", net_req_ptr->recv_buf);
+    printf("\nGOT:\n%s\n", net_req_ptr->recv_buf);
 
     net_request_free(net_req_ptr);
     free(to_send);
