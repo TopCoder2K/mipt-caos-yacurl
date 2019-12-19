@@ -65,9 +65,12 @@ int cmdline_add_header(cmdline_t *cmdline, const char *keyval) {
     
     const char *pos_colon = strchr(keyval, ':');
     if (pos_colon != NULL) {
-        if (*(pos_colon + 1)) {
+        value = pos_colon + 1;
+        while (*value == ' ')
+            ++value;
+        if (*(value)) {
             key = strndup(keyval, pos_colon - keyval);
-            value = strdup(pos_colon + 1);
+            value = strdup(value);
         }
         else
             error = 1;
