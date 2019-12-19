@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "cli.h"
+#include "http_methods.h"
 
 static const char *gk_optstring = "iOX:H:d:o:";
 static const char *gk_help_fmt = ""
@@ -35,18 +36,10 @@ int init_cmdline_t(cmdline_t *cmdline) {
 int cmdline_set_method(cmdline_t *cmdline, const char *method) {
     int error = 1;
     
-    if (!strcmp(method, "DELETE"))
-        error = 0;
-    else if (!strcmp(method, "GET"))
-        error = 0;
-    else if (!strcmp(method, "HEAD"))
-        error = 0;
-    else if (!strcmp(method, "POST"))
-        error = 0;
-    else if (!strcmp(method, "PUT"))
-        error = 0;
-    else if (!strcmp(method, "UPDATE"))
-        error = 0;
+    for (size_t i = 0; error && i < http_methods_supported_cnt; ++i) {
+        if (!strcmp(method, http_methods_supported[i]))
+            error = 0;
+    }
     
     if (!error) {
         free(cmdline->method);
@@ -65,6 +58,7 @@ int cmdline_add_header(cmdline_t *cmdline, const char *keyval) {
     
     const char *pos_colon = strchr(keyval, ':');
     if (pos_colon != NULL) {
+        // Colon found => ``key: value`` format
         value = pos_colon + 1;
         while (*value == ' ')
             ++value;
@@ -76,6 +70,7 @@ int cmdline_add_header(cmdline_t *cmdline, const char *keyval) {
             error = 1;
     }
     else {
+        // No colon => ``key;`` format
         const char *pos_semicolon = strchr(keyval, ';');
         if (pos_semicolon != NULL) {
             key = strndup(keyval, pos_semicolon - keyval);

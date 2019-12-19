@@ -16,8 +16,9 @@ void print_help();
 
 // Parameters:
 //   argc, argv -- as passed to main()
+//   cmdline -- pointer to cmdline_t to be filled
 // Return value:
-//   zero if no error ocurred; otherwise index of failing argument
+//   zero iff no error ocurred
 int parse_cmdline(int argc, char **argv, cmdline_t *cmdline);
 
 void free_cmdline(cmdline_t *cmdline);
