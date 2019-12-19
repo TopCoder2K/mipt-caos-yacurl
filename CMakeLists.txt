@@ -7,6 +7,7 @@ set (CMAKE_C_FLAGS "-O2 -Wall")
 set (SOURCE_FILES
         src/common.c
         src/http_header.c
+        src/http_methods.h
         src/http_request.c
         src/url.c
 )
