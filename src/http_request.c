@@ -37,7 +37,7 @@ void http_request_sethdr(
     http_header_set(request->headers, new_header);
 }
 
-int http_request_seturl(http_request_t *request, const char *url) {
+int http_request_seturl(http_request_t *request, const char *url, int set_body) {
     url_info_t url_info;
     char *split_error = url_split(url, &url_info);
     if (split_error) {
@@ -62,8 +62,10 @@ int http_request_seturl(http_request_t *request, const char *url) {
     http_request_sethdr(request, hdr_host);
     
     // TODO handle form-urlencoded (and proto?)
-    free(url_info.form_data);
+    if (set_body)
+        http_request_set_body(url_info.form_data, request);
     free(url_info.proto);
+
     return 0;
 }
 
