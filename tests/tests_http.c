@@ -2,19 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../src/http_header.h"
+#include "../src/http_response.h"
 #include "../src/http_request.h"
 
 const char test_case_1[] =
-    "Host: mipt.ru\n"
-    "Content-Length: 0\n"
-    "Content-Type:    text/plain    \n"
-    "X-CSRF-Token:8000000000000009\n"
+    "Host: mipt.ru\r\n"
+    "Content-Length: 0\r\n"
+    "Content-Type:    text/plain    \r\n"
+    "X-CSRF-Token:8000000000000009\r\n"
 ;
 
 void test_1() {
     printf("Test 1\n");
     list_t *headers = NULL;
-    int headers_count = http_parse_headers(
+    int headers_count = http_response_parse_headers(
         test_case_1,
         strlen(test_case_1),
         &headers
