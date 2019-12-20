@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     // -------------------------------------------------------------
 
     // TEST 2.
-    net_req_ptr->on_data = reuse_recv_buf;
+    net_req_ptr->on_data = on_data;
     vector_t *response = vector_init();
     net_req_ptr->user_context = response;
 

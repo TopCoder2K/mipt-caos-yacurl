@@ -10,6 +10,8 @@
 
 #define DEBUG
 
+
+
 net_request_t *net_request_init() {
     net_request_t *net_req_ptr = (net_request_t *)calloc(1, sizeof(net_request_t));
 
@@ -30,6 +32,11 @@ void net_request_free(net_request_t *net_req) {
 }
 
 int net_send_receive(net_request_t *request) {
+    if (request->on_data == NULL) {
+        fprintf(stderr, "There is no function to save the server response");
+        return -1;
+    }
+
     // Bad moment?????????????????????????????????????????????????????????
     char port_num[10];
     sprintf(port_num, "%d", request->port);
@@ -94,17 +101,10 @@ int net_send_receive(net_request_t *request) {
     remaining_bytes = request->recv_buf_size;
     while ((was_read = recv(sock_fd, request->recv_buf + request->recv_buf_size - remaining_bytes, remaining_bytes, 0)) > 0) {
         remaining_bytes -= was_read;
-        
+
         if (remaining_bytes == 0) {
-            if (request->on_data == NULL) {
-                fprintf(stderr, "recv_buf is full, but there is no function to free it");
-                shutdown(sock_fd, SHUT_RDWR);
-                close(sock_fd);
-                return -1;
-            } else {
-                request->on_data(request, request->recv_buf_size, request->user_context);
-                remaining_bytes = request->recv_buf_size;
-            }
+            request->on_data(request, request->recv_buf_size, request->user_context);
+            remaining_bytes = request->recv_buf_size;
         }
     }
 
@@ -114,6 +114,8 @@ int net_send_receive(net_request_t *request) {
         close(sock_fd);
         return -1;
     }
+
+    request->on_data(request, request->recv_buf_size - remaining_bytes, request->user_context);
 
     #ifdef DEBUG
         printf("Finished.\n");

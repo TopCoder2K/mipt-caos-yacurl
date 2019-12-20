@@ -40,19 +40,18 @@ void realloc_buf(vector_t *vector) {
     vector->capacity = new_capacity;
 }
 
-void reuse_recv_buf(const net_request_t *request, size_t recieved_bytes, void *context) {
-    size_t request_size = request->recv_buf_size;
+void on_data(const net_request_t *request, size_t recieved_bytes, void *context) {
     vector_t *vector = (vector_t *)context;
 
-    while (vector->capacity < vector->buf_size + request_size) {
+    while (vector->capacity < vector->buf_size + recieved_bytes) {
         realloc_buf(vector);
     }
 
     #ifdef DEBUG
-        printf("Capacity: %ld, Request size: %ld\n", vector->capacity, request_size);
+        printf("Capacity: %ld, Request size: %ld\n", vector->capacity, recieved_bytes);
     #endif // DEBUG
 
-    for (size_t i = 0; i < request_size; ++i) {
+    for (size_t i = 0; i < recieved_bytes; ++i) {
         vector->buf[vector->buf_size] = request->recv_buf[i];
         ++vector->buf_size;
     }
