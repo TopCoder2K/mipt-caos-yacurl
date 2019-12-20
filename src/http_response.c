@@ -17,11 +17,16 @@ int http_response_split(char *resp_str,
     *firstline_end = strstr(resp_str, gk_http_eol_seq);
     int error = *firstline_end == NULL;
     if (!error) {
-        *headers_begin = *firstline_end + strlen(gk_http_eol_seq);
-        *headers_end = strstr(*headers_begin, gk_http_double_eol_seq);
+        *headers_end = strstr(resp_str, gk_http_double_eol_seq);
         error = *headers_end == NULL;
-        if (!error)
-            *body_begin = *headers_end + strlen(gk_http_double_eol_seq);
+        if (!error) {
+            if (*headers_end != *firstline_end) // Headers present
+                *headers_begin = *firstline_end + strlen(gk_http_eol_seq);
+            else
+                *headers_begin = *headers_end;
+
+            *body_begin = *headers_end + 2 * strlen(gk_http_eol_seq);
+        }
     }
     return error;
 }
