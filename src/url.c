@@ -8,7 +8,7 @@
 #define URL_INFO_FIELD_CNT 6 // 5 fields plus one non-used group
 
 static const char *gk_url_split_pattern =
-    "^(([a-z]*?):\\/\\/)?([^\\/]+)([^?]*)\\??(.*)";
+    "^(([a-z]*?):\\/\\/)?([^\\/?]+)([^?]*)\\??(.*)";
 
 char *url_split(const char *url, url_info_t *url_info) {
     regex_t reg;

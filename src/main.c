@@ -50,6 +50,12 @@ void dump_http_request(FILE *stream, http_request_t *request) {
         cnode = cnode->next;
     }
 }
+
+void dump_full_http_requst(FILE *stream, http_request_t *request) {
+    char *full = http_request_write(request);
+    fprintf(stream, "[dump_full_http_requst] full=``%s``\n", full);
+    free(full);
+}
 #endif // DEBUG
 
 http_request_t *request_from_cmdline(cmdline_t *cmdline) {
@@ -58,13 +64,14 @@ http_request_t *request_from_cmdline(cmdline_t *cmdline) {
     request->method = cmdline->method;
     cmdline->method = NULL;
     request->version = strdup("HTTP/1.1");
-    request->body = cmdline->body;
+    http_request_set_body(cmdline->body, request);
     cmdline->body = NULL;
     
     assert(request->headers->next == NULL);
     request->headers->next = cmdline->headers->next;
     cmdline->headers->next = NULL;
-    http_request_seturl(request, cmdline->url);
+    
+    http_request_seturl(request, cmdline->url, 1);
     
     return request;
 }
@@ -81,7 +88,8 @@ int main(int argc, char **argv) {
         
         http_request_t *request = request_from_cmdline(&cmdline);
 #ifdef DEBUG
-        dump_http_request(stderr, request);
+        dump_http_request(stdout, request);
+        dump_full_http_requst(stdout, request);
 #endif // DEBUG
         
         http_request_free(request);

@@ -31,6 +31,7 @@ int init_cmdline_t(cmdline_t *cmdline) {
     cmdline->body = strdup("");
     cmdline->dst_file = NULL;
     cmdline->url = NULL;
+    return 0;
 }
 
 int cmdline_set_method(cmdline_t *cmdline, const char *method) {

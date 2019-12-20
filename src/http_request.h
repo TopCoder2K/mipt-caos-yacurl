@@ -27,3 +27,5 @@ int http_request_seturl(http_request_t *request, const char *url, int set_body);
 // Well-formed request must include not-null method, path, version, body
 // and Host header
 char *http_request_write(http_request_t *request);
+
+void http_request_set_body(const char *body, http_request_t *request);
