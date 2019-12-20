@@ -28,9 +28,11 @@ int init_cmdline_t(cmdline_t *cmdline) {
     cmdline->same_name_outfile = 0;
     cmdline->method = strdup("GET");
     cmdline->headers = list_empty();
-    cmdline->body = strdup("");
+    cmdline->body = "";
     cmdline->dst_file = NULL;
     cmdline->url = NULL;
+    cmdline->has_nonempty_body = 0;
+    return 0;
 }
 
 int cmdline_set_method(cmdline_t *cmdline, const char *method) {
@@ -118,6 +120,7 @@ int parse_cmdline(int argc, char **argv, cmdline_t *cmdline) {
             case 'd':
                 free(cmdline->body);
                 cmdline->body = strdup(optarg);
+                cmdline->has_nonempty_body = 1;
                 // fprintf(stderr, "body=``%s``\n", cmdline->body);
                 break;
             case 'o':

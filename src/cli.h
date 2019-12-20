@@ -10,6 +10,7 @@ typedef struct cmdline {
     char *body;
     char *dst_file;
     char *url;
+    int has_nonempty_body;
 } cmdline_t;
 
 void print_help();

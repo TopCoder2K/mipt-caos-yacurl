@@ -33,6 +33,10 @@ void dump_http_request(FILE *stream, http_request_t *request) {
         stream, "[dump_http_request] method=``%s``, path=``%s``, version=``%s``\n",
         request->method, request->path, request->version
     );
+    fprintf(
+        stream, "[dump_http_request] body=``%s``\n",
+        request->body
+    );
     
     fprintf(stream, "[dump_http_request] headers:\n");
     list_t *cnode = request->headers->next;
@@ -50,22 +54,36 @@ void dump_http_request(FILE *stream, http_request_t *request) {
         cnode = cnode->next;
     }
 }
+
+void dump_full_http_requst(FILE *stream, http_request_t *request) {
+    char *full = http_request_write(request);
+    fprintf(stream, "[dump_full_http_requst] full=``%s``\n", full);
+    free(full);
+}
 #endif // DEBUG
 
 http_request_t *request_from_cmdline(cmdline_t *cmdline) {
     http_request_t *request = http_request_init();
-    
+
+    http_request_seturl(
+        request, cmdline->url, !cmdline->has_nonempty_body
+    );
+
     request->method = cmdline->method;
     cmdline->method = NULL;
     request->version = strdup("HTTP/1.1");
-    request->body = cmdline->body;
+    if (cmdline->has_nonempty_body)
+        http_request_set_body(cmdline->body, request);
     cmdline->body = NULL;
-    
-    assert(request->headers->next == NULL);
-    request->headers->next = cmdline->headers->next;
+
+    list_t *cnode = cmdline->headers->next;
+    while (cnode = NULL) {
+        http_header_t *chdr = cnode->value;
+        http_request_sethdr(request, chdr);
+        cnode = cnode->next;
+    }
     cmdline->headers->next = NULL;
-    http_request_seturl(request, cmdline->url);
-    
+
     return request;
 }
 
@@ -81,7 +99,8 @@ int main(int argc, char **argv) {
         
         http_request_t *request = request_from_cmdline(&cmdline);
 #ifdef DEBUG
-        dump_http_request(stderr, request);
+        dump_http_request(stdout, request);
+        dump_full_http_requst(stdout, request);
 #endif // DEBUG
         
         http_request_free(request);
