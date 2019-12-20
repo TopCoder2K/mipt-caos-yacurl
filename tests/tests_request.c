@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "../src/http_header.h"
 #include "../src/http_request.h"
@@ -20,11 +21,11 @@ const char *gk_test_2_hdr_upgrade_value = "h2";
 const char *gk_test_2_hdr_x_lets_all_love_lain_key = "x-lets-all-love-lain";
 const char *gk_test_2_hdr_x_lets_all_love_lain_value = "";
 const char *gk_test_2_request_full = ""
-    "POST /graphs/d/000000001/lainon-life HTTP/2\n" // first line & headers
-    "host: lainon.life\n"
-    "upgrade: h2\n"
-    "x-lets-all-love-lain: \n"
-    "\n"
+    "POST /graphs/d/000000001/lainon-life HTTP/2\r\n" // first line & headers
+    "host: lainon.life\r\n"
+    "upgrade: h2\r\n"
+    "x-lets-all-love-lain: \r\n"
+    "\r\n"
     ""; // body (empty)
 
 void test_1() {
