@@ -18,7 +18,8 @@ typedef struct net_request {
     size_t send_buf_size;
     char *recv_buf;
     size_t recv_buf_size;
-    void (*on_data)(const struct net_request *, size_t);
+    void *user_context;
+    void (*on_data)(const struct net_request *, size_t, void *);
 } net_request_t;
 
 // Should set defaults as:

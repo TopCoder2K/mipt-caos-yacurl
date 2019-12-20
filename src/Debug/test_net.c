@@ -7,7 +7,7 @@
 #define DEBUG
 
 
-const unsigned int BUF_SIZE = 4096;
+const unsigned int BUF_SIZE = 4096 * 4;
 
     /*char *hostname;
     int port;
@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
     char *to_recv = calloc(BUF_SIZE, sizeof(char));
     size_t recv_buf_size = BUF_SIZE;
 
+    // TEST 1.
     send_buf_size = read(STDIN_FILENO, to_send, BUF_SIZE);
 
     net_request_t *net_req_ptr = net_request_init();
@@ -36,13 +37,31 @@ int main(int argc, char **argv) {
     net_req_ptr->recv_buf_size = recv_buf_size;
     net_req_ptr->on_data = NULL;
 
-    printf("Request was created.\n");
+    printf("Request1 was created.\n");
 
     int status = net_send_receive(net_req_ptr);
     if (status == -1) {
         return 1;
     }
     printf("\nGOT:\n%s\n", net_req_ptr->recv_buf);
+    // -------------------------------------------------------------
+
+    // TEST 2.
+    memset(to_send, 0, BUF_SIZE);
+    memset(to_recv, 0, BUF_SIZE);
+    for (int32_t i = 1; i <= 4096; ++i) {
+        sprintf(to_send + i * 4, "%d", i);
+    }
+    net_req_ptr->send_buf_size = BUF_SIZE;
+    net_req_ptr->recv_buf_size = BUF_SIZE;
+    printf("Request2 was created.\n");
+
+    status = net_send_receive(net_req_ptr);
+    if (status == -1) {
+        return 1;
+    }
+    printf("\nGOT:\n%s\n", net_req_ptr->recv_buf);
+    // -------------------------------------------------------------
 
     net_request_free(net_req_ptr);
     free(to_send);

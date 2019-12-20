@@ -11,6 +11,7 @@ net_request_t *net_request_init() {
     net_req_ptr->send_buf_size = 0;
     net_req_ptr->recv_buf = NULL;
     net_req_ptr->recv_buf_size = 0;
+    net_req_ptr->user_context = NULL;
     net_req_ptr->on_data = NULL;
 
     return net_req_ptr;
@@ -84,8 +85,6 @@ int net_send_receive(net_request_t *request) {
     long long was_read = 0;
     remaining_bytes = request->recv_buf_size;
     while ((was_read = recv(sock_fd, request->recv_buf + request->recv_buf_size - remaining_bytes, remaining_bytes, 0)) > 0) {
-        remaining_bytes -= was_read;
-
         if (remaining_bytes == 0) {
             if (request->on_data == NULL) {
                 fprintf(stderr, "recv_buf is full, but there is no function to free it");
@@ -93,7 +92,7 @@ int net_send_receive(net_request_t *request) {
                 close(sock_fd);
                 return -1;
             } else {
-                request->on_data(request, request->recv_buf_size);
+                request->on_data(request, request->recv_buf_size, request->user_context);
             }
         }
         #ifdef DEBUG
