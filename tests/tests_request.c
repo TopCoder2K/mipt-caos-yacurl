@@ -23,9 +23,10 @@ const char *gk_test_2_hdr_x_lets_all_love_lain_value = "";
 const char *gk_test_2_request_full = ""
     "POST /graphs/d/000000001/lainon-life HTTP/2\r\n" // first line & headers
     "host: lainon.life\r\n"
+    "content-length: 26\r\n"
+    "content-type: x-www-form-urlencoded\r\n"
     "upgrade: h2\r\n"
     "x-lets-all-love-lain: \r\n"
-    "content-length: 26\r\n"
     "\r\n"
     "orgId=1&from=now-7d&to=now"
     "";
