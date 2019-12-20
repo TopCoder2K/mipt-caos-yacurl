@@ -31,38 +31,21 @@ int main(int argc, char **argv) {
     memset(response_str, 0, BUF_SIZE);
     read(response_fd, response_str, BUF_SIZE);
     
-    char *firstline_end = NULL, *headers_begin = NULL, *headers_end = NULL,
-        *body_begin = NULL;
-    error = http_response_split(
-        response_str,
-        &firstline_end, &headers_begin, &headers_end, &body_begin
-    );
-    if (!error) {
-        fputs("First line: ``", stdout);
-        for (char *pchr = response_str; pchr < firstline_end; ++pchr)
-            putchar(*pchr);
-        fputs("``\n", stdout);
-        fputs("Body: ``", stdout);
-        for (char *pchr = body_begin; *pchr; ++pchr)
-            putchar(*pchr);
-        fputs("``\n", stdout);
-        
-        list_t *headers_list = NULL;
-        int headers_cnt = http_response_parse_headers(
-            headers_begin, headers_end - headers_begin, &headers_list
-        );
-        error = headers_cnt == -1;
-        if (!error) {
-            printf("%d headers:\n", headers_cnt);
-            dump_http_headers(stdout, headers_list);
-            list_free(headers_list, http_header_t_free);
-        }
-        else
-            fprintf(stderr, "Error: http_response_parse_headers() failed\n");
+    http_response_t *response = http_response_parse(response_str);
+    if (response != NULL) {
+        printf("Version: ``%s``\n", response->version);
+        printf("Status code: %d\n", response->status_code);
+        printf("Status message: ``%s``\n", response->status_message);
+        printf("Headers:\n");
+        dump_http_headers(stdout, response->headers);
+        printf("Body: ``%s``\n", response->body);
     }
-    else
-        fprintf(stderr, "Error: http_response_split() failed\n");
+    else {
+        fprintf(stderr, "Error: http_response_parse() failed\n");
+    }
     
+    http_response_free(response);
     free(response_str);
+    
     return error;
 }
