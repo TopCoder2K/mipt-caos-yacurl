@@ -8,7 +8,8 @@ set (CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g -DDEBUG}")
 set (SOURCE_FILES
         src/common.c
         src/http_header.c
-        src/http_methods.h
+        src/http_const.c
+        src/http_methods.c
         src/http_response.c
         src/http_request.c
         src/url.c
