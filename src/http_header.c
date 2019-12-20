@@ -8,6 +8,7 @@
 static const char *http_header_titles[] = {
     "host",
     "user-agent",
+    "content-length",
     NULL
 };
 
