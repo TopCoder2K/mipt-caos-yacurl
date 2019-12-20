@@ -40,10 +40,6 @@ void realloc_buf(vector_t *vector) {
     vector->capacity = new_capacity;
 }
 
-// Saves the whole server response.
-// Copyies the new recieved information from net_request->recv_buf
-// to context_buf if the first one had been filled.
-// Also reallocates context->buf if it's neccessary.
 void reuse_recv_buf(const struct net_request *request, size_t recieved_bytes, void *context) {
     size_t request_size = request->recv_buf_size;
     vector_t *vector = (vector_t *)context;
