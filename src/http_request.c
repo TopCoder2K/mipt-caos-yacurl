@@ -50,6 +50,10 @@ int http_request_seturl(http_request_t *request, const char *url) {
     }
     
     request->path = url_info.path;
+    if (strlen(request->path) == 0) { // No path specified
+        free(request->path);
+        request->path = strdup("/");
+    }
     
     http_header_t *hdr_host = malloc(sizeof(http_header_t));
     hdr_host->key.k_code = HTTP_HDR_HOST;
