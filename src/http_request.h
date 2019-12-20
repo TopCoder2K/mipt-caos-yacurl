@@ -19,7 +19,7 @@ void http_request_sethdr(http_request_t *request, http_header_t *header);
 //   Host header and .path as specifed in url
 // Return value:
 //   zero iff no error
-int http_request_seturl(http_request_t *request, const char *url);
+int http_request_seturl(http_request_t *request, const char *url, int set_body);
 
 // Return value:
 //   pointer to string, containing the request

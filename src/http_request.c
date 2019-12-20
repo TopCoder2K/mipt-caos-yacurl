@@ -37,7 +37,7 @@ void http_request_sethdr(
     http_header_set(request->headers, new_header);
 }
 
-int http_request_seturl(http_request_t *request, const char *url) {
+int http_request_seturl(http_request_t *request, const char *url, int set_body) {
     url_info_t url_info;
     char *split_error = url_split(url, &url_info);
     if (split_error) {
@@ -50,6 +50,10 @@ int http_request_seturl(http_request_t *request, const char *url) {
     }
     
     request->path = url_info.path;
+    if (strlen(request->path) == 0) { // No path specified
+        free(request->path);
+        request->path = strdup("/");
+    }
     
     http_header_t *hdr_host = malloc(sizeof(http_header_t));
     hdr_host->key.k_code = HTTP_HDR_HOST;
@@ -58,9 +62,31 @@ int http_request_seturl(http_request_t *request, const char *url) {
     http_request_sethdr(request, hdr_host);
     
     // TODO handle form-urlencoded (and proto?)
-    free(url_info.form_data);
+    if (set_body)
+        http_request_set_body(url_info.form_data, request);
     free(url_info.proto);
+
     return 0;
+}
+
+void http_request_set_body(const char *body, http_request_t *request) {
+    size_t content_length = strlen(body);
+    if (content_length > 0) {
+        free(request->body);
+        request->body = strdup(body);
+    }
+}
+
+static void http_request_set_content_length(http_request_t *request) {
+    size_t len = strlen(request->body);
+    char len_str[100] = "";
+    snprintf(len_str, 100, "%zu", len);
+
+    http_header_t *content_length = malloc(sizeof(http_header_t));
+    content_length->key.k_code = HTTP_HDR_CONTENT_LENGTH;
+    content_length->key.k_str = NULL;
+    content_length->value = strdup(len_str);
+    http_request_sethdr(request, content_length);
 }
 
 // Return value:
@@ -71,7 +97,7 @@ int http_request_validate_basic(http_request_t *request) {
     error |= request->path == NULL;
     error |= request->version == NULL;
     error |= request->body == NULL;
-    
+
     http_header_key_t hdr_host_key = { .k_code = HTTP_HDR_HOST };
     int is_found;
     list_t *hdr_host_node = list_find_equal(
@@ -135,6 +161,8 @@ size_t http_request_required_size(http_request_t *request) {
 char *http_request_write(http_request_t *request) {
     char *request_buffer = NULL;
     if (http_request_validate_basic(request) == 0) {
+        http_request_set_content_length(request);
+
         size_t required_size = http_request_required_size(request);
         request_buffer = malloc(required_size);
         memset(request_buffer, 0, required_size);

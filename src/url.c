@@ -5,10 +5,10 @@
 #include "common.h"
 #include "url.h"
 
-#define URL_INFO_FIELD_CNT 5
+#define URL_INFO_FIELD_CNT 6 // 5 fields plus one non-used group
 
 static const char *gk_url_split_pattern =
-    "^([a-z]*?):\\/\\/([^\\/]+)([^?]*)\\??(.*)";
+    "^(([a-z]*?):\\/\\/)?([^\\/]+)([^?]*)\\??(.*)";
 
 char *url_split(const char *url, url_info_t *url_info) {
     regex_t reg;
@@ -35,10 +35,10 @@ char *url_split(const char *url, url_info_t *url_info) {
             );
         }
         */
-        url_info->proto = str_dup_by_match(url, &matches[1]);
-        url_info->host = str_dup_by_match(url, &matches[2]);
-        url_info->path = str_dup_by_match(url, &matches[3]);
-        url_info->form_data = str_dup_by_match(url, &matches[4]);
+        url_info->proto = str_dup_by_match(url, &matches[2]);
+        url_info->host = str_dup_by_match(url, &matches[3]);
+        url_info->path = str_dup_by_match(url, &matches[4]);
+        url_info->form_data = str_dup_by_match(url, &matches[5]);
     }
     else {
         error = malloc(0x100);

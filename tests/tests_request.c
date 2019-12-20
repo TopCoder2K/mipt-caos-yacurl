@@ -25,14 +25,16 @@ const char *gk_test_2_request_full = ""
     "host: lainon.life\r\n"
     "upgrade: h2\r\n"
     "x-lets-all-love-lain: \r\n"
+    "content-length: 26\r\n"
     "\r\n"
-    ""; // body (empty)
+    "orgId=1&from=now-7d&to=now"
+    "";
 
 void test_1() {
     http_request_t *req = http_request_init();
     req->method = strdup("GET");
     req->version = strdup(gk_test_1_version);
-    if (! http_request_seturl(req, gk_test_1_url)) {
+    if (! http_request_seturl(req, gk_test_1_url, 1)) {
         list_t *node_hdr_host = req->headers->next;
         http_header_t *hdr_host = node_hdr_host->value;
         
@@ -60,7 +62,7 @@ void test_2(int argc, char **argv) {
     req->method = strdup(gk_test_2_method);
     req->version = strdup(gk_test_2_version);
     req->body = strdup("");
-    if (! http_request_seturl(req, gk_test_2_url)) {
+    if (! http_request_seturl(req, gk_test_2_url, 1)) {
         http_header_t *hdr_set_upgrade = malloc(sizeof(http_header_t));
         hdr_set_upgrade->key.k_code = HTTP_HDR_OTHER;
         hdr_set_upgrade->key.k_str = strdup(gk_test_2_hdr_upgrade_key);
