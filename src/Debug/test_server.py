@@ -8,7 +8,9 @@ def process_connection(conn):
 
     data = conn.recv(buf_size)
     print("Got:\n{}\n".format(data))
-    conn.send(data)
+    response = data.decode()
+    response += "\nSincerely yours.\n"
+    conn.send(response.encode())
 
     conn.shutdown(SHUT_RDWR)
     conn.close()
