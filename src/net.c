@@ -93,6 +93,8 @@ int net_send_receive(net_request_t *request) {
     long long was_read = 0;
     remaining_bytes = request->recv_buf_size;
     while ((was_read = recv(sock_fd, request->recv_buf + request->recv_buf_size - remaining_bytes, remaining_bytes, 0)) > 0) {
+        remaining_bytes -= was_read;
+        
         if (remaining_bytes == 0) {
             if (request->on_data == NULL) {
                 fprintf(stderr, "recv_buf is full, but there is no function to free it");
@@ -101,12 +103,9 @@ int net_send_receive(net_request_t *request) {
                 return -1;
             } else {
                 request->on_data(request, request->recv_buf_size, request->user_context);
+                remaining_bytes = request->recv_buf_size;
             }
         }
-        #ifdef DEBUG
-            printf("%s\n", request->recv_buf);
-            fflush(stdout);
-        #endif // DEBUG
     }
 
     if (was_read == -1) {

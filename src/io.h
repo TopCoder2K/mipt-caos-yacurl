@@ -1,5 +1,6 @@
 #pragma once
 #include <stddef.h>
+#include "net.h"
 
 
 
@@ -18,4 +19,4 @@ void realloc_buf(vector_t *vector);
 // Copyies the new recieved information from net_request->recv_buf
 // to context_buf if the first one had been filled.
 // Also reallocates context->buf if it's necessary.
-void reuse_recv_buf(const struct net_request *request, size_t recieved_bytes, void *context);
+void reuse_recv_buf(const net_request_t *request, size_t recieved_bytes, void *context);

@@ -1,2 +1,2 @@
 all:
-	gcc net.c Debug/test_net.c -o main
+	gcc net.c io.c Debug/test_net.c -o main

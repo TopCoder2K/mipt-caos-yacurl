@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "../net.h"
+#include "../io.h"
 
 
 #define DEBUG
@@ -36,7 +37,6 @@ int main(int argc, char **argv) {
     net_req_ptr->send_buf_size = send_buf_size;
     net_req_ptr->recv_buf = to_recv;
     net_req_ptr->recv_buf_size = recv_buf_size;
-    net_req_ptr->on_data = NULL;
 
     printf("Request1 was created.\n");
 
@@ -48,9 +48,14 @@ int main(int argc, char **argv) {
     // -------------------------------------------------------------
 
     // TEST 2.
+    net_req_ptr->on_data = reuse_recv_buf;
+    vector_t *response = vector_init();
+    net_req_ptr->user_context = response;
+
     memset(to_send, 0, BUF_SIZE);
     memset(to_recv, 0, BUF_SIZE);
-    for (int32_t i = 1; i <= 4096; ++i) {
+
+    for (int i = 1; i <= 4096; ++i) {
         sprintf(to_send + i * 4, "%d", i);
     }
     net_req_ptr->send_buf_size = BUF_SIZE;
@@ -64,6 +69,7 @@ int main(int argc, char **argv) {
     printf("\nGOT:\n%s\n", net_req_ptr->recv_buf);
     // -------------------------------------------------------------
 
+    vector_free(response);
     net_request_free(net_req_ptr);
     free(to_send);
     free(to_recv);
