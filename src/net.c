@@ -34,7 +34,7 @@ int net_send_receive(net_request_t *request) {
 
     int status = 0;
     if ((status = getaddrinfo(request->hostname, port_num, &hints, &addrinfo_list)) != 0) {
-        fprintf(stderr, "getaddrinfo error: %sn", gai_strerror(status));
+        fprintf(stderr, "getaddrinfo error: %s", gai_strerror(status));
         return -1;
     }
 
