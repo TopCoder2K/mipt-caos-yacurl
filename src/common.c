@@ -15,6 +15,9 @@ list_t *list_empty() {
 // Otherwise, will additionally call free_fn on .value field of all
 // elements of ls.
 void list_free(list_t *ls, void (*free_fn)(const void *)) {
+    if (ls == NULL)
+        return;
+    
 #ifdef DEBUG
     if (free_fn != NULL)
         fprintf(stderr, "[list_free] will free value\n");

@@ -36,13 +36,6 @@ int http_header_key_isequal(
     const http_header_key_t *second
 );
 
-// `raw' line format:
-//   ^header:[ ]+value[ ]+$
-// return value:
-//   number of headers
-// headers obtained can be freed by calls to http_header_t_free()
-int http_parse_headers(const char *raw, size_t length, list_t **dest);
-
 // Will call free() on new_header and its fields, so it shouldn`t be used
 // after
 void http_header_set(list_t *headers, http_header_t *new_header);

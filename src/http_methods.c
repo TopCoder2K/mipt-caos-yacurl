@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
 
 static const size_t http_methods_supported_cnt = 5;
 
