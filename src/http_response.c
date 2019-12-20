@@ -8,7 +8,8 @@
 #include "http_const.h"
 #include "http_response.h"
 
-int http_response_split(char *resp_str,
+int http_response_split(
+    char *resp_str,
     char **firstline_end, char **headers_begin,
     char **headers_end, char **body_begin
 ) {
@@ -122,4 +123,114 @@ int http_response_parse_headers(const char *raw, size_t length, list_t **dest) {
         list_free(ls_head, http_header_t_free);
         return error;
     }
+}
+
+http_response_t *http_response_init() {
+    http_response_t *response = malloc(sizeof(http_response_t));
+    response->version = NULL;
+    response->status_code = 0;
+    response->status_message = NULL;
+    response->headers = NULL;
+    response->body = NULL;
+    return response;
+}
+
+void http_response_free(http_response_t *response) {
+    if (response == NULL)
+        return;
+    
+    free(response->body);
+    list_free(response->headers, http_header_t_free);
+    free(response->status_message);
+    free(response->version);
+    free(response);
+}
+
+int http_response_parse_firstline(
+    char *begin, char *end, http_response_t *response
+) {
+    char *version_end = strchr(begin, ' ');
+    int error = version_end == NULL;
+    
+    if (!error) {
+        char *status_code_begin = version_end;
+        while (*status_code_begin == ' ')
+            ++status_code_begin;
+        error = *status_code_begin == 0;
+        
+        if (!error) {
+            char *status_code_end = strchr(status_code_begin + 1, ' ');
+            error = *status_code_end == 0;
+            
+            if (!error) {
+                char *status_message_begin = status_code_end + 1;
+                while (*status_message_begin == ' ')
+                    ++status_message_begin;
+                error = *status_message_begin == 0;
+                
+                if (!error) {
+                    char *err_ptr = NULL;
+                    *status_code_end = 0;
+                    response->status_code = strtol(
+                        status_code_begin, &err_ptr, 10
+                    );
+                    error = err_ptr != status_code_end;
+                    if (!error) {
+                        response->version = strndup(
+                            begin, version_end - begin
+                        );
+                        response->status_message = strndup(
+                            status_message_begin, end - status_message_begin
+                        );
+                    }
+                    else
+                        fprintf(stderr, "[http_response_parse_firstline] strtol() failed on field 3 \n");
+                }
+                else
+                    fprintf(stderr, "[http_response_parse_firstline] field 3 missing (eol) \n");
+            }
+            else
+                fprintf(stderr, "[http_response_parse_firstline] field 3 missing (space) \n");
+        }
+        else
+            fprintf(stderr, "[http_response_parse_firstline] field 2 missing (eol) \n");
+    }
+    else
+        fprintf(stderr, "[http_response_parse_firstline] filed 2 missing (space)\n");
+    
+    return error;
+}
+
+http_response_t *http_response_parse(char *raw) {
+    http_response_t *response = http_response_init();
+    char *firstline_end, *headers_begin, *headers_end, *body_begin;
+    int error = http_response_split(
+        raw,
+        &firstline_end, &headers_begin, &headers_end, &body_begin
+    );
+    
+    if (!error) {
+        error = http_response_parse_firstline(raw, firstline_end, response);
+        
+        if (!error) {
+            int headers_cnt = http_response_parse_headers(
+                headers_begin, headers_end - headers_begin, &response->headers
+            );
+            error = headers_cnt < 0;
+            
+            if (!error)
+                response->body = strdup(body_begin);
+        }
+        else
+            fprintf(stderr, "[http_response_parse] Error: http_response_parse_firstline() failed\n");
+    }
+    else {
+        fprintf(stderr, "[http_response_parse] Error: http_response_split() failed\n");
+    }
+    
+    if (error) {
+        http_response_free(response);
+        response = NULL;
+    }
+    return response;
 }

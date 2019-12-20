@@ -46,6 +46,9 @@ int http_header_key_isequal(
 }
 
 void http_header_t_free(const void *header_ptr) {
+    if (header_ptr == NULL)
+        return;
+    
     http_header_t *hdr = (http_header_t *)header_ptr;
     if (hdr->key.k_code == HTTP_HDR_OTHER)
         free(hdr->key.k_str);

@@ -19,6 +19,9 @@ http_request_t *http_request_init() {
 }
 
 void http_request_free(http_request_t *request) {
+    if (request == NULL)
+        return;
+    
     free(request->method);
     free(request->path);
     free(request->version);
