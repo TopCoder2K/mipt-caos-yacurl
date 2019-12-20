@@ -5,10 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "http_const.h"
 #include "http_response.h"
-
-static const char *gk_http_eol_seq = "\r\n";
-static const char *gk_http_double_eol_seq = "\r\n\r\n";
 
 int http_response_split(char *resp_str,
     char **firstline_end, char **headers_begin,

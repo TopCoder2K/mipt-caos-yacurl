@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "http_const.h"
 #include "http_request.h"
 #include "url.h"
 
@@ -97,7 +98,7 @@ size_t http_request_required_size(http_request_t *request) {
     size_t required_size = 1; // 0-terminator
     required_size += strlen(request->method) + 1;
     required_size += strlen(request->path) + 1;
-    required_size += strlen(request->version) + 1;
+    required_size += strlen(request->version) + strlen(gk_http_eol_seq);
     
     list_t *cnode = request->headers->next;
     while (cnode != NULL) {
@@ -113,15 +114,15 @@ size_t http_request_required_size(http_request_t *request) {
             key = cheader->key.k_str;
         else
             key = http_header_str(cheader->key.k_code);
-        required_size += strlen(key) + 2 + strlen(cheader->value) + 1;
+        required_size += strlen(key) + 2 + strlen(cheader->value) + strlen(gk_http_eol_seq);
         cnode = cnode->next;
     }
     
-    required_size += 1 + strlen(request->body);
+    required_size += strlen(gk_http_eol_seq) + strlen(request->body);
     
 #ifdef DEBUG
         fprintf(
-            stderr, "[http_request_required_size] return=%d\n",
+            stderr, "[http_request_required_size] return=%zu\n",
             required_size
         );
 #endif // DEBUG
@@ -140,7 +141,7 @@ char *http_request_write(http_request_t *request) {
         request_buffer = strcat(request_buffer, request->path);
         request_buffer = strcat(request_buffer, " ");
         request_buffer = strcat(request_buffer, request->version);
-        request_buffer = strcat(request_buffer, "\n");
+        request_buffer = strcat(request_buffer, gk_http_eol_seq);
         
         list_t *cnode = request->headers->next;
         while (cnode != NULL) {
@@ -159,16 +160,16 @@ char *http_request_write(http_request_t *request) {
             request_buffer = strcat(request_buffer, key);
             request_buffer = strcat(request_buffer, ": ");
             request_buffer = strcat(request_buffer, cheader->value);
-            request_buffer = strcat(request_buffer, "\n");
+            request_buffer = strcat(request_buffer, gk_http_eol_seq);
             cnode = cnode->next;
         };
         
-        request_buffer = strcat(request_buffer, "\n");
+        request_buffer = strcat(request_buffer, gk_http_eol_seq);
         request_buffer = strcat(request_buffer, request->body);
         
 #ifdef DEBUG
         fprintf(
-            stderr, "[http_request_write] written len=%d request=``%s``\n",
+            stderr, "[http_request_write] written len=%zu request=``%s``\n",
             strlen(request_buffer), request_buffer
         );
 #endif // DEBUG
