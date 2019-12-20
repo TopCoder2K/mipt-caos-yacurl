@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <regex.h>
 
-// List head is always value-empty and never null
+// List head is always value-empty and never null.
 
 typedef struct list {
     void *value;
