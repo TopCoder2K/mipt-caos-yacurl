@@ -13,6 +13,8 @@ set (SOURCE_FILES
         src/http_methods.c
         src/http_response.c
         src/http_request.c
+        src/io.c
+        src/net.c
         src/url.c
 )
 
@@ -20,4 +22,5 @@ add_executable(yacurl_tests_http ${SOURCE_FILES} tests/tests_http.c)
 add_executable(yacurl_tests_request ${SOURCE_FILES} tests/tests_request.c)
 add_executable(yacurl_tests_response ${SOURCE_FILES} tests/tests_response.c)
 add_executable(yacurl_tests_cli ${SOURCE_FILES} tests/tests_cli.c)
+add_executable(yacurl_test_net ${SOURCE_FILES} tests/test_net.c)
 add_executable(yacurl ${SOURCE_FILES} src/main.c)

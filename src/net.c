@@ -43,7 +43,7 @@ int net_send_receive(net_request_t *request) {
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;        // It's not necessary: IPv4 or IPv6.
+    hints.ai_family = AF_INET;        // It's not necessary: IPv4 or IPv6.
     hints.ai_socktype = SOCK_STREAM;    // TCP stream-sockets.
     struct addrinfo *addrinfo_list = NULL;
 
