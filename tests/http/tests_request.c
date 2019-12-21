@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../src/http_header.h"
-#include "../src/http_request.h"
+#include "http/http_header.h"
+#include "http/http_request.h"
 
 const char *gk_test_1_url = "http://acm.mipt.ru/twiki/bin/view/Algorithms/GeneralAlgorithmsLinks";
 const char *gk_test_1_method = "GET";

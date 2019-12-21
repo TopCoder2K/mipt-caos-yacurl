@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "cli.h"
-#include "http_response.h"
-#include "http_request.h"
-#include "io.h"
-#include "net.h"
+#include "app/cli.h"
+#include "http/http_response.h"
+#include "http/http_request.h"
+#include "io/io.h"
+#include "io/net.h"
 
 void display_headers(FILE *stream, const char *fmt, list_t *headers_list) {
     list_t *cnode = headers_list->next;

@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "cli.h"
-#include "http_methods.h"
+#include "http/http_methods.h"
 
 static const char *gk_optstring = "iOX:H:d:o:";
 static const char *gk_help_fmt = ""

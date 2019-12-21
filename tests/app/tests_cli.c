@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../src/cli.h"
+#include "app/cli.h"
 
 int main(int argc, char **argv) {
     cmdline_t cmdline;

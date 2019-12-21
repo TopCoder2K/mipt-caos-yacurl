@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "common.h"
+#include "common/common.h"
 #include "url.h"
 
 #define URL_INFO_FIELD_CNT 6 // 5 fields plus one non-used group
