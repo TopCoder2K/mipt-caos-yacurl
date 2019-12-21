@@ -2,14 +2,15 @@
 
 ## Feature status
 - Option ```-O```: unsupported
+- Cygwin: unsupported (```regex.h``` problems)
 
 ## Build & Run
 
 ```
 $ git clone https://github.com/bcskda/mipt-caos-yacurl
-$ git checkout dev-cli
-$ mkdir -p build && cd build
-$ cmake --DCMAKE_BUILD_TYPE=Debug ..
-$ make yacurl
-$ ./yacurl [args] 2>/dev/null
+$ cd mipt-caos-yacurl
+$ git checkout dev-main
+$ chmod +x build.sh run.sh
+$ ./build.sh [ CMake args ... ]
+$ ./run.sh [ yacurl args ... ]
 ```
