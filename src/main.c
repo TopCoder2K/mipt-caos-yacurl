@@ -150,8 +150,9 @@ int main(int argc, char **argv) {
         fprintf(stderr, "[main] response_raw=``%s``\n", response_raw->buf);
         http_response_t *resp = http_response_parse(response_raw->buf);
         display_response(resp, cmdline.include_response_headers);
-        
 
+        http_response_free(resp);
+        vector_free(response_raw);
         netreq_finalize(netreq);
         http_request_free(request);
     }

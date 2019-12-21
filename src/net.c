@@ -129,7 +129,7 @@ int net_send_receive(net_request_t *request) {
     #endif // DEBUG
 
     close(sock_fd);
-    free(addrinfo_list);
+    freeaddrinfo(addrinfo_list);
 
     return 0;
 }
