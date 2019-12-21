@@ -1,17 +1,13 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "cli.h"
+#include "http_response.h"
 #include "http_request.h"
 
-#ifdef DEBUG
-void dump_cmdline(FILE *stream, cmdline_t *cmdline) {
-    fprintf(stream, "[dump_cmdline] include_response_headers: %d\n", cmdline->include_response_headers);
-    fprintf(stream, "[dump_cmdline] same_name_outfile: %d\n", cmdline->same_name_outfile);
-    fprintf(stream, "[dump_cmdline] method: ``%s``\n", cmdline->method);
-    
-    fprintf(stream, "[dump_cmdline] headers:\n");
-    list_t *cnode = cmdline->headers->next;
+void display_headers(FILE *stream, const char *fmt, list_t *headers_list) {
+    list_t *cnode = headers_list->next;
     while (cnode != NULL) {
         http_header_t *header = cnode->value;
         const char *key;
@@ -19,10 +15,20 @@ void dump_cmdline(FILE *stream, cmdline_t *cmdline) {
             key = header->key.k_str;
         else
             key = http_header_str(header->key.k_code);
-        fprintf(stream, "[dump_cmdline] -- ``%s``: ``%s``\n", key, header->value);
+        fprintf(stream, fmt, key, header->value);
         cnode = cnode->next;
     }
-    
+}
+
+#ifdef DEBUG
+void dump_cmdline(FILE *stream, cmdline_t *cmdline) {
+    fprintf(stream, "[dump_cmdline] include_response_headers: %d\n", cmdline->include_response_headers);
+    fprintf(stream, "[dump_cmdline] same_name_outfile: %d\n", cmdline->same_name_outfile);
+    fprintf(stream, "[dump_cmdline] method: ``%s``\n", cmdline->method);
+
+    fprintf(stream, "[dump_cmdline] headers:\n");
+    display_headers(stream, "[dump_cmdline] -- ``%s``: ``%s``\n", cmdline->headers);
+
     fprintf(stream, "[dump_cmdline] body: ``%s``\n", cmdline->body);
     fprintf(stream, "[dump_cmdline] dst_file: ``%s``\n", cmdline->dst_file);
     fprintf(stream, "[dump_cmdline] url: ``%s``\n", cmdline->url);
@@ -37,22 +43,9 @@ void dump_http_request(FILE *stream, http_request_t *request) {
         stream, "[dump_http_request] body=``%s``\n",
         request->body
     );
-    
+
     fprintf(stream, "[dump_http_request] headers:\n");
-    list_t *cnode = request->headers->next;
-    while (cnode != NULL) {
-        http_header_t *header = cnode->value;
-        const char *key;
-        if (header->key.k_code == HTTP_HDR_OTHER)
-            key = header->key.k_str;
-        else
-            key = http_header_str(header->key.k_code);
-        fprintf(
-            stream, "[dump_http_request] -- ``%s``: ``%s``\n",
-            key, header->value
-        );
-        cnode = cnode->next;
-    }
+    display_headers(stream, "[dump_http_request] -- ``%s``: ``%s``\n", request->headers);
 }
 
 void dump_full_http_requst(FILE *stream, http_request_t *request) {
@@ -74,17 +67,26 @@ http_request_t *request_from_cmdline(cmdline_t *cmdline) {
     request->version = strdup("HTTP/1.1");
     if (cmdline->has_nonempty_body)
         http_request_set_body(cmdline->body, request);
+    free(cmdline->body);
     cmdline->body = NULL;
 
     list_t *cnode = cmdline->headers->next;
-    while (cnode = NULL) {
+    while (cnode != NULL) {
         http_header_t *chdr = cnode->value;
-        http_request_sethdr(request, chdr);
+        http_request_sethdr(request, chdr); // BUG memory leak
+        cnode->value = NULL;
         cnode = cnode->next;
     }
-    cmdline->headers->next = NULL;
 
     return request;
+}
+
+void display_response(http_response_t *response, int show_headers) {
+    if (show_headers) {
+        printf("%d %s\n", response->status_code, response->body);
+        display_headers(stdout, "%s: %s\n", response->headers);
+    }
+    fputs(response->body, stdout);
 }
 
 int main(int argc, char **argv) {
@@ -102,7 +104,7 @@ int main(int argc, char **argv) {
         dump_http_request(stdout, request);
         dump_full_http_requst(stdout, request);
 #endif // DEBUG
-        
+
         http_request_free(request);
     }
     else {

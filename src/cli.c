@@ -28,7 +28,7 @@ int init_cmdline_t(cmdline_t *cmdline) {
     cmdline->same_name_outfile = 0;
     cmdline->method = strdup("GET");
     cmdline->headers = list_empty();
-    cmdline->body = "";
+    cmdline->body = strdup("");
     cmdline->dst_file = NULL;
     cmdline->url = NULL;
     cmdline->has_nonempty_body = 0;

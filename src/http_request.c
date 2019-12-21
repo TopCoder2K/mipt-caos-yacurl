@@ -114,17 +114,19 @@ void http_request_set_body(const char *body, http_request_t *request) {
     if (!is_found)
         http_request_set_contentlength(request, content_length);
     
-    key.k_code = HTTP_HDR_CONTENT_TYPE;
-    key.k_str = NULL;
-    is_found = 0;
-    hdr_node = list_find_equal(
-        request->headers,
-        &key,
-        http_header_key_isequal,
-        &is_found
-    );
-    if (!is_found)
-        http_request_set_contenttype(request, "x-www-form-urlencoded");
+    if (content_length > 0) {
+        key.k_code = HTTP_HDR_CONTENT_TYPE;
+        key.k_str = NULL;
+        is_found = 0;
+        hdr_node = list_find_equal(
+            request->headers,
+            &key,
+            http_header_key_isequal,
+            &is_found
+        );
+        if (!is_found)
+            http_request_set_contenttype(request, "x-www-form-urlencoded");
+    }
 }
 
 // Return value:
