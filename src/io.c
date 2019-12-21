@@ -31,7 +31,7 @@ void realloc_buf(vector_t *vector) {
 
     memset(new_buf, 0, new_capacity);
 
-    for (int i = 0; i < new_capacity / 2; ++i) {
+    for (size_t i = 0; i < new_capacity / 2; ++i) {
         new_buf[i] = vector->buf[i];
     }
     free(vector->buf);
@@ -40,25 +40,23 @@ void realloc_buf(vector_t *vector) {
     vector->capacity = new_capacity;
 }
 
-void on_data(const net_request_t *request, size_t recieved_bytes, void *context) {
+void on_data(const char *recv_buf, size_t recieved_bytes, void *context) {
     vector_t *vector = (vector_t *)context;
+
+    #ifdef DEBUG
+        printf("Before reallocation:\nCapacity: %ld, Buffer size: %ld\n", vector->capacity, vector->buf_size);
+    #endif // DEBUG
 
     while (vector->capacity < vector->buf_size + recieved_bytes) {
         realloc_buf(vector);
     }
 
     #ifdef DEBUG
-        printf("Capacity: %ld, Request size: %ld\n", vector->capacity, recieved_bytes);
+        printf("After:\nCapacity: %ld, Request size: %ld\n", vector->capacity, recieved_bytes);
     #endif // DEBUG
 
     for (size_t i = 0; i < recieved_bytes; ++i) {
-        vector->buf[vector->buf_size] = request->recv_buf[i];
+        vector->buf[vector->buf_size] = recv_buf[i];
         ++vector->buf_size;
     }
-
-    #ifdef DEBUG
-        printf("Full response: %s", vector->buf);
-    #endif // DEBUG
-
-    memset(request->recv_buf, 0, request->recv_buf_size);
 }

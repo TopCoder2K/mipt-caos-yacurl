@@ -84,7 +84,7 @@ int net_send_receive(net_request_t *request) {
         if (bytes_sent < 0) {
             fprintf(stderr, "Error occured during the transmition (e. g. server closed the connection)");
         } else {
-            fprintf(stderr, "The transmition is strangely interrupted");
+            fprintf(stderr, "The transmition was strangely interrupted");
         }
         close(sock_fd);
         return -1;
@@ -103,8 +103,9 @@ int net_send_receive(net_request_t *request) {
         remaining_bytes -= was_read;
 
         if (remaining_bytes == 0) {
-            request->on_data(request, request->recv_buf_size, request->user_context);
+            request->on_data(request->recv_buf, request->recv_buf_size, request->user_context);
             remaining_bytes = request->recv_buf_size;
+            memset(request->recv_buf, 0, request->recv_buf_size);
         }
     }
 
@@ -115,7 +116,12 @@ int net_send_receive(net_request_t *request) {
         return -1;
     }
 
-    request->on_data(request, request->recv_buf_size - remaining_bytes, request->user_context);
+    #ifdef DEBUG
+        printf("Start saving the response.\n");
+        fflush(stdout);
+    #endif // DEBUG
+
+    request->on_data(request->recv_buf, request->recv_buf_size - remaining_bytes, request->user_context);
 
     #ifdef DEBUG
         printf("Finished.\n");

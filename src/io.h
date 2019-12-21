@@ -19,4 +19,4 @@ void realloc_buf(vector_t *vector);
 // Copyies the new recieved information from net_request->recv_buf
 // to context_buf if the first one had been filled.
 // Also reallocates context->buf if it's necessary.
-void on_data(const net_request_t *request, size_t recieved_bytes, void *context);
+void on_data(const char *recv_buf, size_t recieved_bytes, void *context);
