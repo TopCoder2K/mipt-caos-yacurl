@@ -1,5 +1,8 @@
 # mipt-caos-yacurl
 
+## Feature status
+- Option ```-O```: unsupported
+
 ## Build & Run
 
 ```
@@ -8,5 +11,5 @@ $ git checkout dev-cli
 $ mkdir -p build && cd build
 $ cmake --DCMAKE_BUILD_TYPE=Debug ..
 $ make yacurl
-$ valgrind ./yacurl [args]
+$ ./yacurl [args] 2>/dev/null
 ```
