@@ -44,7 +44,7 @@ void on_data(const char *recv_buf, size_t recieved_bytes, void *context) {
     vector_t *vector = (vector_t *)context;
 
     #ifdef DEBUG
-        printf("Before reallocation:\nCapacity: %ld, Buffer size: %ld\n", vector->capacity, vector->buf_size);
+        fprintf(stderr, "[on_data] Before reallocation:\n[on_data] Capacity: %ld, Buffer size: %ld\n", vector->capacity, vector->buf_size);
     #endif // DEBUG
 
     while (vector->capacity < vector->buf_size + recieved_bytes) {
@@ -52,7 +52,7 @@ void on_data(const char *recv_buf, size_t recieved_bytes, void *context) {
     }
 
     #ifdef DEBUG
-        printf("After:\nCapacity: %ld, Request size: %ld\n", vector->capacity, recieved_bytes);
+        fprintf(stderr, "[on_data] After:\n[on_data] Capacity: %ld, Request size: %ld\n", vector->capacity, recieved_bytes);
     #endif // DEBUG
 
     for (size_t i = 0; i < recieved_bytes; ++i) {
