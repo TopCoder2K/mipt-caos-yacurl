@@ -131,7 +131,7 @@ void http_request_set_body(const char *body, http_request_t *request) {
     http_header_t *hdr_conn = malloc(sizeof(http_header_t));
     hdr_conn->key.k_code = HTTP_HDR_OTHER;
     hdr_conn->key.k_str = strdup("connection");
-    hdr_conn->value = strdup("Close");
+    hdr_conn->value = strdup("close");
     http_request_sethdr(request, hdr_conn);
 }
 
