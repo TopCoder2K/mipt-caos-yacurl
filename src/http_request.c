@@ -127,6 +127,12 @@ void http_request_set_body(const char *body, http_request_t *request) {
         if (!is_found)
             http_request_set_contenttype(request, "x-www-form-urlencoded");
     }
+    
+    http_header_t *hdr_conn = malloc(sizeof(http_header_t));
+    hdr_conn->key.k_code = HTTP_HDR_OTHER;
+    hdr_conn->key.k_str = strdup("connection");
+    hdr_conn->value = strdup("Close");
+    http_request_sethdr(request, hdr_conn);
 }
 
 // Return value:
