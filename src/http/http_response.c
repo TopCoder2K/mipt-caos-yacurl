@@ -13,6 +13,7 @@ int http_response_split(
     char **firstline_end, char **headers_begin,
     char **headers_end, char **body_begin
 ) {
+    fprintf(stderr, "[http_response_split] resp=``%s``\n", resp_str);
     *firstline_end = strstr(resp_str, gk_http_eol_seq);
     int error = *firstline_end == NULL;
     if (!error) {
@@ -26,7 +27,11 @@ int http_response_split(
 
             *body_begin = *headers_end + 2 * strlen(gk_http_eol_seq);
         }
+        else
+            fprintf(stderr, "[http_response_split] 2\n");
     }
+    else
+        fprintf(stderr, "[http_response_split] 1\n");
     return error;
 }
 
@@ -220,6 +225,8 @@ http_response_t *http_response_parse(char *raw) {
             
             if (!error)
                 response->body = strdup(body_begin);
+            else
+                fprintf(stderr, "[http_response_parse] Error: http_response_parse_headers() failed\n");
         }
         else
             fprintf(stderr, "[http_response_parse] Error: http_response_parse_firstline() failed\n");

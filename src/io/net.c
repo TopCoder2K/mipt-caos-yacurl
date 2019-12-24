@@ -33,7 +33,7 @@ void net_request_free(net_request_t *net_req) {
 
 int net_send_receive(net_request_t *request) {
     if (request->on_data == NULL) {
-        fprintf(stderr, "There is no function to save the server response");
+        fprintf(stderr, "[net_send_receive] There is no function to save the server response\n");
         return -1;
     }
 
@@ -43,25 +43,25 @@ int net_send_receive(net_request_t *request) {
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;        // It's not necessary: IPv4 or IPv6.
+    hints.ai_family = AF_INET;        // Most web-servers support IPv4
     hints.ai_socktype = SOCK_STREAM;    // TCP stream-sockets.
     struct addrinfo *addrinfo_list = NULL;
 
     int status = 0;
     if ((status = getaddrinfo(request->hostname, port_num, &hints, &addrinfo_list)) != 0) {
-        fprintf(stderr, "getaddrinfo error: %s", gai_strerror(status));
+        fprintf(stderr, "[net_send_receive] getaddrinfo error: %s\n", gai_strerror(status));
         return -1;
     }
 
     // Create socket.
     int sock_fd = socket(addrinfo_list->ai_family, addrinfo_list->ai_socktype, addrinfo_list->ai_protocol);
     if (sock_fd == -1) {
-        fprintf(stderr, "Socket creation failed");
+        fprintf(stderr, "[net_send_receive] Socket creation failed\n");
         return -1;
     }
 
     if (connect(sock_fd, addrinfo_list->ai_addr, addrinfo_list->ai_addrlen) != 0) {
-        fprintf(stderr, "Connection failed");
+        fprintf(stderr, "[net_send_receive] Connection failed\n");
         close(sock_fd);
         return -1;
     }
@@ -70,8 +70,7 @@ int net_send_receive(net_request_t *request) {
 
     // Send the request.
     #ifdef DEBUG
-        printf("Start sending the request.\n");
-        fflush(stdout);
+        fprintf(stderr, "[net_send_receive] Start sending the request.\n");
     #endif // DEBUG
 
     long long bytes_sent = 0;
@@ -82,9 +81,9 @@ int net_send_receive(net_request_t *request) {
 
     if (remaining_bytes > 0) {
         if (bytes_sent < 0) {
-            fprintf(stderr, "Error occured during the transmition (e. g. server closed the connection)");
+            fprintf(stderr, "[net_send_receive] Error occured during the transmition (e. g. server closed the connection)\n");
         } else {
-            fprintf(stderr, "The transmition was strangely interrupted");
+            fprintf(stderr, "[net_send_receive] The transmition was strangely interrupted\n");
         }
         close(sock_fd);
         return -1;
@@ -93,8 +92,7 @@ int net_send_receive(net_request_t *request) {
 
     // Read the response.
     #ifdef DEBUG
-        printf("Start reading the response.\n");
-        fflush(stdout);
+        fprintf(stderr, "[net_send_receive] Start reading the response.\n");
     #endif // DEBUG
 
     long long was_read = 0;
@@ -110,26 +108,24 @@ int net_send_receive(net_request_t *request) {
     }
 
     if (was_read == -1) {
-        fprintf(stderr, "recv failed");
+        fprintf(stderr, "[net_send_receive] recv failed\n");
         shutdown(sock_fd, SHUT_RDWR);
         close(sock_fd);
         return -1;
     }
 
     #ifdef DEBUG
-        printf("Start saving the response.\n");
-        fflush(stdout);
+        fprintf(stderr, "[net_send_receive] Start saving the response.\n");
     #endif // DEBUG
 
     request->on_data(request->recv_buf, request->recv_buf_size - remaining_bytes, request->user_context);
 
     #ifdef DEBUG
-        printf("Finished.\n");
-        fflush(stdout);
+        fprintf(stderr, "[net_send_receive] Finished.\n");
     #endif // DEBUG
 
     close(sock_fd);
-    free(addrinfo_list);
+    freeaddrinfo(addrinfo_list);
 
     return 0;
 }

@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "../net.h"
-#include "../io.h"
+#include "io/net.h"
+#include "io/io.h"
 
 
 #define DEBUG

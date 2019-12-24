@@ -1,6 +1,6 @@
 #pragma once
-#include "common.h"
-#include "http_request.h"
+#include "common/common.h"
+#include "http/http_request.h"
 
 typedef struct cmdline {
     int include_response_headers;
